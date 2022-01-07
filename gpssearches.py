@@ -1,16 +1,15 @@
 #uninformed searches
 
-#depth first search searches each nodes peers goes down level first then back tracks. Its good for decision tree or binary trees searches where its weighted and can cut search in half
-#not good for infinate trees or graphs because it will infinitely go down left side. if used in a graph must use visitted [] to make sure not stuck in loop
+#In this script we will use a map of nodes represnting cities and use several different search algorithms 
+#to find the shortest route to our destination
 
-#breadth first search goes level by level and finds the answer in the shotest steps from beginning node. but need a func to track how it got there.
-#always finds shortest route by testing in levels so every oprion that takes two steps before everyone that takes 3 steps.
+#first we will use a simple breadth first search
 
-#created helper func to take a solved popped list and traceback the route of last val list with gaol as node val and trace back its mothers
-#using recursion saying for loop in popped list if i[0] = current ones mother print and run again chasing its mother.. stop when mother is none because reached the start node
+#create helper function to take list with all nodes(and their mother node) used to find a goal node. Then traceback the route taken.
 def bfspathtraceback (poppedlist, chased):
   if chased[1] == None:
-    print('ur at the begining node has no mother')
+    print('Route trace complete')
+    
 
 
   else:
@@ -19,37 +18,32 @@ def bfspathtraceback (poppedlist, chased):
         print (i)
         bfspathtraceback(poppedlist, i)
 
-#breadth first search always findest shortes steps to the goal in a tree or graph search
-#so used it to search a map graph with peers and finde quickest route (in steps) to gal destination
-#steps are to take args for the map, the starting node and the goal destination
-
+#function to run the breadth first search and find the shortest route to the goal node using the map of cities/nodes
 def bstsearch (map, node, goal):
 
-  #create visited and que lists to track and avoid loops or revisiting + add start node to que which will
-  #be popped into visited in while loop used for recursion
+  #create list to store nodes that have been visited in order to avoid loop
   visited = []
+  #List for nodes thats links have been searched and popped from the que
   popped = []
+  #List for que of all nodes in the map
   que = []
-  #visited.append([node, 'none'])
+  #Add start node to que and visited
   que.append([node, None])
-  #add original start node to visisted and que to stop it popping origin twice eg thinking its ok to c its neighbor as peer and readding to que fuking up traceback!
-  #keep visisted a simple track of jus node key no need to carry mother because makes harder to do a if in statement on list of lists
   visited.append(node)
 
-  #while que has a value loop
+  #while loop to trigger the search
   while que:
 
-    #pop first in que to m var add topopped for trace back and check if found gaol destination and break while
+    #pop first in que to m var, add to popped for trace back and check if node is goal destination then break loop
     m = que.pop(0)
     popped.append(m)
     if m[0] == goal:
-      print('found it')
-      #print last node to be chased because traceback is recursion and if u say print at beggining it will keep doig it.
+      print('Breadth First Search complete, the quickest route is:')
       print(m)
       bfspathtraceback(popped, popped[-1])
       break
 
-    #do for loop in current popped val from que node and add its peers to back of que and visited if not already visited... visited maens scene, cant use que because some get popped so will be missing!
+    #for loop in current popped nodes peers/neighbours, if not already in visited list add to the que
     else:
       for peers in map[m[0]]:
         if peers not in visited:
@@ -57,6 +51,7 @@ def bstsearch (map, node, goal):
           visited.append(peers)
 
 
+#map of each city/node and its peers/neighbours
 mappeers = {
   'arad' : ['zer','tim', 'sibu'],
   'zer' : ['arad', 'ord'],
@@ -68,19 +63,14 @@ mappeers = {
   'pit': ['rim', 'buk']
 }
 
+#run the search giving start node and goal node
 bstsearch(mappeers, 'arad' ,'buk')
 
 
-#Uniform cost search is same a bst except it takes inro account the cost / distance of moving from each node
-#it adds peers to the que like bst but adds them with the added up cost of last steps aswell
-#then instead of popping the fisrt in que it pops the priority one which is one with lowest cost!
-#so it will do for loop through que and pull 1 with min cost variable add to visited etc
-#can be done with class and giving each node a sel.cost and the longness of creating a dict with every poss step from node to nodes cost
-#long byt do once u get bored or for portfolio!
+#Here we use uniform cost search which takes into account the cost / distance of moving from each node. In this case it is number representing miles.
 
-#helper func to take the name of two linked nodes and store value for distance to travel there it creates two vals with names reversed
-#so if search looks backtrack it can find var.
 
+#helper func to take the name of two linked nodes and store value for distance between them
 distdict ={}
 
 def insertdistance(node1,node2,distancy):
@@ -100,120 +90,96 @@ insertdistance('fag', 'buk', 211)
 insertdistance('pit', 'buk', 101)
 
 
-#now use breadth first but add a condition to pop/select node with least accumalated distance. need to add a tracker variable for total distance
-#travelled to get to node. add to list containing mother node. could also do sel.mother and self.distravelled with classes and pointers
-#can keep traceback func from b4 so jus change search
+#now we use breadth first but add a condition to pop/select node with least accumalated distance.
+#the function takes a map representing cities and the start and goal city/node
+def UniformCostSearch (map, node, goal):
 
-def dijifiksearch (map, node, goal):
-
-  #create visited and que lists to track and avoid loops or revisiting + add start node to que which will
-  #be popped into visited in while loop used for recursion
   visited = []
   popped = []
   que = []
-  #append original start node and length 0 to que([node, 'none', 0])
+  #append original start node and length 0 to que.
   que.append([node, None, 0])
-  #add original start node to visisted and que to stop it popping origin twice eg thinking its ok to c its neighbor as peer and readding to que fuking up traceback!
-  #keep visisted a simple track of jus node key no need to carry mother because makes harder to do a if in statement on list of lists
   visited.append(node)
 
-  #while que has a value loop
   while que:
 
-    #for loop through que lists to find lowest var of distance travel and then report index to be popped
+    #for loop through que lists to find node with lowest distance travel and then report its index to be popped
     d= 0
     index = 0
-    #check if d is empty
     for i in que:
       if i[2] < que[d][2]:
         d = index
       index += 1
-    print('lowest distance travelled node is', que[d])
+    #print('lowest distance travelled node is', que[d])
 
-    #pop the one in que thats 3rd variable for distance is shortest to m var add topopped for trace back and check if found gaol destination and break while
     m = que.pop(d)
     popped.append(m)
-    #visited becomes popped so nodes can be revistsed but have to use extra list cos u want to do if node not in
-    #only want to carry node name and not whole list so can iterate heck
     visited.append(m[0])
     if m[0] == goal:
-      print('found it')
-      #print last node to be chased because traceback is recursion and if u say print at beggining it will keep doig it.
+      print('Uniform Cost Search complete, the quickest route is:')
       print(m)
       bfspathtraceback(popped, popped[-1])
       break
 
-    #do for loop in current popped val from que node and add its peers to back of que and visited if not already visited... visited maens scene, cant use que because some get popped so will be missing!
+    #for loop in current popped node from que and add its peers to back of que and visited if not already visited.
     else:
       for peers in map[m[0]]:
         if peers != m[0]:
           if peers not in visited:
-            #append the peer its mother and the distance travelled to get to it added to previous mothers distances
+            #append the peer its mother and the distance travelled in order to be added added to previous mothers distances
             que.append([peers, m[0], m[2]+distdict[peers+m[0]]])
-            #visited.append(peers)
 
-dijifiksearch(mappeers, 'arad', 'buk')
+#run the program with start and goal node
+UniformCostSearch(mappeers, 'arad', 'buk')
 
 
 # informed search
-# a* search is informed because it has extra info about the position of the goal using hueristic (h)
-#its jus a dijivic/uniform cost search which takes into account lowest cost to node / distance but adds the hurestic h value of the node
-#to the calculation of which one to explore/pop next. all u need to do is add the h value to the dictionry of node values and peers and add
-#it to the calculation. eg node cost/distance value + heuristic/distance to node value.
+
+#Here we use a* search. a* is more intelligent than previous search algorithms because it 
+#takes into account extra info about the position of the goal relative to current node. 
+#Using this hueristic we can add another layer of intelligence to our gps
+#This search uses the same formula as uniform cost, calculating distance in miles 
+#but uses a heuristic to make better choices on the route to take
 
 def astar (map, node, goal):
 
-  #create visited and que lists to track and avoid loops or revisiting + add start node to que which will
-  #be popped into visited in while loop used for recursion
+  #create visited and que lists to track and avoid loops or revisitin
   visited = []
   popped = []
   que = []
-  #append original start node and length 0 cos start and heuristic value tho not needed cos its at begging to que([node, 'none', 0])
+  #append original start node 
   que.append([node, None, 0, nodeheristics[node]])
-  #add original start node to visisted and que to stop it popping origin twice eg thinking its ok to c its neighbor as peer and readding to que fuking up traceback!
-  #keep visisted a simple track of jus node key no need to carry mother because makes harder to do a if in statement on list of lists
+  #add original start node to visisted and que to stop it popping origin twice
   visited.append(node)
 
-  #while que has a value loop
   while que:
 
-    #for loop through que lists to find lowest var of distance travel + a* heuristic and then report index to be popped
+    #for loop through que lists to find node with lowest distance travel + a* heuristic and then report index to be popped
     d= 0
     index = 0
-    #check if d is empty
     for i in que:
       if i[2] < que[d][2]:
         d = index
       index += 1
-    print('lowest distance travelled node is', que[d])
+    #print('lowest distance travelled node is', que[d])
 
-    #pop the one in que thats 3rd variable for distance is shortest to m var add topopped for trace back and check if found gaol destination and break while
     m = que.pop(d)
     popped.append(m)
-    #visited becomes popped instead of discovered peers so nodes can be revistsed but have to use extra list cos u want to do if node not in
-    #only want to carry node name and not whole list so can iterate heck
     visited.append(m[0])
     if m[0] == goal:
-      print('found it')
-      #print last node to be chased because traceback is recursion and if u say print at beggining it will keep doig it.
+      print('A* Search complete, the quickest route is:')
       print(m)
-      #bfspathtraceback(popped, popped[-1])
+      bfspathtraceback(popped, popped[-1])
       break
 
-    #do for loop in current popped val from que node and add its peers to back of que and visited if not already visited... visited maens scene, cant use que because some get popped so will be missing!
-    #m[0] holds the current popped nodes naame so use it to search map dict for its peers
-    #then check the peers havent been popped cos then shortest distance found already and that its not its mother so dont backtrack (should be m[1]??
-    #then add to que list with peer node, its mother, and distance travelled so far + distance from mother to that node using distdict which key
-    # is concantation of node name eg peers from for loop and m[0] which is mother then and h value using node name in heuristicnode dict
     else:
       for peers in map[m[0]]:
         if peers != m[0]:
           if peers not in visited:
-            #append the peer its mother and the distance travelled value to get to it added to previous mothers distances + its nodes huristic(h)
+            #append the peer, its mother and the distance travelled value, to get to it added to previous mothers distances + its nodes huristic(h)
             que.append([peers, m[0], m[2]+distdict[peers+m[0]]+nodeheristics[peers]])
-            #visited.append(peers)
 
-# create new dictionary with heuristic value added to each node for a*
+# create new dictionary with heuristic value added to each node
 
 nodeheristics = {
   'arad' : 366 ,
@@ -226,4 +192,5 @@ nodeheristics = {
   'pit': 100,
   'buk' : 0 }
 
+#run the search
 astar(mappeers, 'arad', 'buk')
