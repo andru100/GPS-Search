@@ -4,4 +4,4 @@ The script first uses Breadth First Search, then Uniform Cost Search and finally
 
 The geograhical map of cities is represented as a graph of nodes with each cities connecting destinations included.
 
-To run type **python gpSearch.py**
+To run type **python gpSearches.py**
